@@ -178,7 +178,10 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     public void Undo()
     {
         var state = UndoRedoManager.Instance.Undo();
-        if (state == null) return;
+        
+        if (state == null)
+            return;
+        
         RestoreState(state);
         AudioManager.Instance?.PlayUndo();
     }
@@ -186,15 +189,20 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     public void Redo()
     {
         var state = UndoRedoManager.Instance.Redo();
-        if (state == null) return;
+        
+        if (state == null)
+            return;
+        
         RestoreState(state);
     }
 
     void RestoreState(Texture2D[] snaps)
     {
         var layers = LayerManager.Instance.Layers;
+        
         for (int i = 0; i < Mathf.Min(snaps.Length, layers.Count); i++)
             layers[i].RestoreFrom(snaps[i]);
+            
         RefreshDisplay();
     }
 }
