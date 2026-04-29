@@ -4,6 +4,11 @@ using UnityEngine;
 public class LayerManager : MonoBehaviour
 {
     public static LayerManager Instance { get; private set; }
+    public List<Layer> Layers { get; private set; } = new List<Layer>();
+    public int ActiveIndex { get; private set; } = 0;
+    public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveIndex] : null;
+    private int _nextId = 0;
+    public event System.Action OnLayersChanged;
 
     public class Layer
     {
@@ -18,8 +23,12 @@ public class LayerManager : MonoBehaviour
         {
             this.id = id;
             this.name = name;
-            texture = new Texture2D(w, h, TextureFormat.RGBA32, false);
-            texture.filterMode = FilterMode.Point;
+
+            texture = new Texture2D(w, h, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point
+            };
+
             Clear();
         }
 
@@ -40,12 +49,6 @@ public class LayerManager : MonoBehaviour
     [Header("Canvas")]
     public int canvasWidth = 1920;
     public int canvasHeight = 1080;
-
-    public List<Layer> Layers { get; private set; } = [];
-    public int ActiveIndex { get; private set; } = 0;
-    public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveIndex] : null;
-    private int _nextId = 0;
-    public event System.Action OnLayersChanged;
 
     void Awake()
     {
@@ -129,27 +132,29 @@ public class LayerManager : MonoBehaviour
     public Texture2D Flatten()
     {
         var result = new Texture2D(canvasWidth, canvasHeight, TextureFormat.RGBA32, false);
-        var pixels = new Color[canvasWidth * canvasHeight];
+        var pixels = new Color32[canvasWidth * canvasHeight];
 
         for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = Color.white;
+            pixels[i] = new Color32(255, 255, 255, 255);
 
         foreach (var layer in Layers)
         {
             if (!layer.visible)
                 continue;
 
-            var lp = layer.texture.GetPixels();
+            var lp = layer.texture.GetPixels32();
 
             for (int i = 0; i < lp.Length; i++)
             {
-                var src = lp[i];
+                var src = (Color)lp[i];
+                var dst = (Color)pixels[i];
                 src.a *= layer.opacity;
-                pixels[i] = Color.Lerp(pixels[i], src, src.a);
+                var blended = Color.Lerp(dst, src, src.a);
+                pixels[i] = (Color32)blended;
             }
         }
 
-        result.SetPixels(pixels);
+        result.SetPixels32(pixels);
         result.Apply();
         return result;
     }

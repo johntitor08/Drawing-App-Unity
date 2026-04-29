@@ -1,8 +1,28 @@
 using UnityEngine;
 
-public enum ToolType { Brush, Eraser, Fill, Shape, Eyedropper }
-public enum ShapeType { Line, Rectangle, Circle }
-public enum BlendMode { Normal, Multiply, Screen, Overlay }
+public enum ToolType
+{
+    Brush,
+    Eraser,
+    Fill,
+    Shape,
+    Eyedropper
+}
+
+public enum ShapeType
+{
+    Line,
+    Rectangle,
+    Circle
+}
+
+public enum BlendMode
+{
+    Normal,
+    Multiply,
+    Screen,
+    Overlay
+}
 
 [CreateAssetMenu(fileName = "BrushSettings", menuName = "Drawing/BrushSettings")]
 public class BrushSettings : ScriptableObject

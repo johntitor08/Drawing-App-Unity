@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(RawImage))]
+[RequireComponent(typeof(RectTransform))]
 public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IPointerMoveHandler
 {
     public static DrawingCanvas Instance { get; private set; }
@@ -53,7 +54,8 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             UndoRedoManager.Instance.Push(UndoRedoManager.TakeSnapshot(LayerManager.Instance.Layers));
             FillTool.FloodFill(LayerManager.Instance.ActiveLayer.texture, pos.Value, BrushSettings.Instance.color);
             LayerManager.Instance.ActiveLayer.texture.Apply();
-            AudioManager.Instance?.PlayFill();
+            var audioFill = AudioManager.Instance;
+            if (audioFill != null) audioFill.PlayFill();
             RefreshDisplay();
             return;
         }
@@ -106,28 +108,27 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         {
             UndoRedoManager.Instance.Push(UndoRedoManager.TakeSnapshot(LayerManager.Instance.Layers));
             _strokeStarted = true;
+            var audio = AudioManager.Instance;
 
             if (tool == ToolType.Eraser)
-                AudioManager.Instance?.PlayEraser();
+            {
+                if (audio != null)
+                    audio.PlayEraser();
+            }
             else
-                AudioManager.Instance?.PlayBrush();
+            {
+                if (audio != null)
+                    audio.PlayBrush();
+            }
         }
 
-        BrushTool.DrawLine(
-            LayerManager.Instance.ActiveLayer.texture,
-            _lastPos, pos.Value,
-            BrushSettings.Instance.size,
-            BrushSettings.Instance.GetActiveColor(),
-            BrushSettings.Instance.hardness,
-            BrushSettings.Instance.activeTool == ToolType.Eraser
-        );
-
+        BrushTool.DrawLine(LayerManager.Instance.ActiveLayer.texture, _lastPos, pos.Value, BrushSettings.Instance.size, BrushSettings.Instance.GetActiveColor(), BrushSettings.Instance.hardness, BrushSettings.Instance.activeTool == ToolType.Eraser);
         LayerManager.Instance.ActiveLayer.texture.Apply();
         _lastPos = pos.Value;
         RefreshDisplay();
     }
 
-    public static void OnPointerMove(PointerEventData e) { }
+    public void OnPointerMove(PointerEventData e) { }
 
     public void OnPointerUp(PointerEventData e)
     {
@@ -138,8 +139,8 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
     Vector2? GetCanvasPos(PointerEventData e)
     {
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            _rt, e.position, e.pressEventCamera, out var local)) return null;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(_rt, e.position, e.pressEventCamera, out var local))
+            return null;
 
         var rect = _rt.rect;
         var u = (local.x - rect.x) / rect.width;
@@ -183,7 +184,10 @@ public class DrawingCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             return;
         
         RestoreState(state);
-        AudioManager.Instance?.PlayUndo();
+        var audio = AudioManager.Instance;
+
+        if (audio != null)
+            audio.PlayUndo();
     }
 
     public void Redo()
