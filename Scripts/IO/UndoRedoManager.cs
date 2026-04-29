@@ -4,11 +4,9 @@ using UnityEngine;
 public class UndoRedoManager : MonoBehaviour
 {
     public static UndoRedoManager Instance { get; private set; }
-
-    [SerializeField] private readonly int maxHistory = 50;
-
+    private readonly int maxHistory = 50;
     private Stack<Texture2D[]> _undoStack = new();
-    private Stack<Texture2D[]> _redoStack = new();
+    private readonly Stack<Texture2D[]> _redoStack = new();
 
     void Awake()
     {
