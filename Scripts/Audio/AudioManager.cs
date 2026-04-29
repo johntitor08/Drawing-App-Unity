@@ -3,6 +3,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
+    private AudioSource _src;
 
     [Header("Clips")]
     public AudioClip brushStroke;
@@ -13,8 +14,6 @@ public class AudioManager : MonoBehaviour
 
     [Header("Settings")]
     [Range(0f, 1f)] public float masterVolume = 0.6f;
-
-    private AudioSource _src;
 
     void Awake()
     {
@@ -39,8 +38,12 @@ public class AudioManager : MonoBehaviour
     }
 
     public void PlayBrush() => Play(brushStroke);
+
     public void PlayEraser() => Play(eraserStroke);
+
     public void PlayFill() => Play(fillSound);
+
     public void PlayUndo() => Play(undoSound);
+
     public void PlaySave() => Play(saveSound);
 }
