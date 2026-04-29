@@ -40,46 +40,114 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         var bs = BrushSettings.Instance;
-        brushBtn?.onClick.AddListener(() => SetTool(ToolType.Brush));
-        eraserBtn?.onClick.AddListener(() => SetTool(ToolType.Eraser));
-        fillBtn?.onClick.AddListener(() => SetTool(ToolType.Fill));
-        eyedropperBtn?.onClick.AddListener(() => SetTool(ToolType.Eyedropper));
-        lineBtn?.onClick.AddListener(() => { SetTool(ToolType.Shape); bs.activeShape = ShapeType.Line; });
-        rectBtn?.onClick.AddListener(() => { SetTool(ToolType.Shape); bs.activeShape = ShapeType.Rectangle; });
-        circleBtn?.onClick.AddListener(() => { SetTool(ToolType.Shape); bs.activeShape = ShapeType.Circle; });
 
-        sizeSlider?.onValueChanged.AddListener(v =>
+        if (brushBtn != null)
+            brushBtn.onClick.AddListener(() => SetTool(ToolType.Brush));
+
+        if (eraserBtn != null)
+            eraserBtn.onClick.AddListener(() => SetTool(ToolType.Eraser));
+
+        if (fillBtn != null)
+            fillBtn.onClick.AddListener(() => SetTool(ToolType.Fill));
+
+        if (eyedropperBtn != null)
+            eyedropperBtn.onClick.AddListener(() => SetTool(ToolType.Eyedropper));
+
+        if (lineBtn != null)
+            lineBtn.onClick.AddListener(() =>
+            {
+                SetTool(ToolType.Shape);
+                bs.activeShape = ShapeType.Line;
+            });
+
+        if (rectBtn != null)
+            rectBtn.onClick.AddListener(() =>
+            {
+                SetTool(ToolType.Shape);
+                bs.activeShape = ShapeType.Rectangle;
+            });
+
+        if (circleBtn != null)
+            circleBtn.onClick.AddListener(() =>
+            {
+                SetTool(ToolType.Shape);
+                bs.activeShape = ShapeType.Circle;
+            });
+
+        if (sizeSlider != null)
         {
-            bs.size = (int)v;
-            sizeLabel?.text = $"{(int)v}px";
-        });
+            sizeSlider.onValueChanged.AddListener(v =>
+            {
+                bs.size = (int)v;
+                if (sizeLabel != null) sizeLabel.text = $"{(int)v}px";
+            });
+        }
 
-        hardnessSlider?.onValueChanged.AddListener(v => bs.hardness = v);
-        opacitySlider?.onValueChanged.AddListener(v => bs.opacity = v);
+        if (hardnessSlider != null)
+            hardnessSlider.onValueChanged.AddListener(v => bs.hardness = v);
+
+        if (opacitySlider != null)
+            opacitySlider.onValueChanged.AddListener(v => bs.opacity = v);
 
         foreach (var btn in paletteButtons)
         {
             if (btn == null)
                 continue;
 
-            var col = btn.GetComponent<Image>().color;
+            var img = btn.GetComponent<Image>();
+            var col = img != null ? img.color : Color.white;
 
             btn.onClick.AddListener(() =>
             {
                 bs.color = col;
-                colorPreview?.color = col;
+
+                if (colorPreview != null)
+                    colorPreview.color = col;
+
                 SetTool(ToolType.Brush);
             });
         }
 
-        addLayerBtn?.onClick.AddListener(() => LayerManager.Instance.AddLayer());
-        removeLayerBtn?.onClick.AddListener(() => LayerManager.Instance.RemoveLayer(LayerManager.Instance.ActiveIndex));
-        mergeDownBtn?.onClick.AddListener(() => LayerManager.Instance.MergeDown(LayerManager.Instance.ActiveIndex));
-        savePNGBtn?.onClick.AddListener(() => { SaveManager.Instance.SavePNG(); AudioManager.Instance?.PlaySave(); });
-        saveNativeBtn?.onClick.AddListener(() => { SaveManager.Instance.SaveNative(); AudioManager.Instance?.PlaySave(); });
-        undoBtn?.onClick.AddListener(() => DrawingCanvas.Instance.Undo());
-        redoBtn?.onClick.AddListener(() => DrawingCanvas.Instance.Redo());
-        clearBtn?.onClick.AddListener(() => LayerManager.Instance.ActiveLayer?.Clear());
+        if (addLayerBtn != null)
+            addLayerBtn.onClick.AddListener(() => LayerManager.Instance.AddLayer());
+
+        if (removeLayerBtn != null)
+            removeLayerBtn.onClick.AddListener(() => LayerManager.Instance.RemoveLayer(LayerManager.Instance.ActiveIndex));
+
+        if (mergeDownBtn != null)
+            mergeDownBtn.onClick.AddListener(() => LayerManager.Instance.MergeDown(LayerManager.Instance.ActiveIndex));
+
+        if (savePNGBtn != null)
+            savePNGBtn.onClick.AddListener(() =>
+            {
+                SaveManager.Instance.SavePNG();
+                var am = AudioManager.Instance;
+
+                if (am != null)
+                    am.PlaySave();
+            });
+
+        if (saveNativeBtn != null) saveNativeBtn.onClick.AddListener(() =>
+        {
+            SaveManager.Instance.SaveNative();
+            var am = AudioManager.Instance;
+
+            if (am != null)
+                am.PlaySave();
+        });
+
+        if (undoBtn != null)
+            undoBtn.onClick.AddListener(() => DrawingCanvas.Instance.Undo());
+
+        if (redoBtn != null)
+            redoBtn.onClick.AddListener(() => DrawingCanvas.Instance.Redo());
+
+        if (clearBtn != null)
+            clearBtn.onClick.AddListener(() =>
+            {
+                var layer = LayerManager.Instance.ActiveLayer;
+                layer?.Clear();
+            });
     }
 
     static void SetTool(ToolType t) => BrushSettings.Instance.activeTool = t;

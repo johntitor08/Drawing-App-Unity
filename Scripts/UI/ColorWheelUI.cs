@@ -16,22 +16,34 @@ public class ColorWheelUI : MonoBehaviour
 
     void Start()
     {
-        hueSlider?.onValueChanged.AddListener(_ => OnHSVChanged());
-        satSlider?.onValueChanged.AddListener(_ => OnHSVChanged());
-        valSlider?.onValueChanged.AddListener(_ => OnHSVChanged());
-        hexInput?.onEndEdit.AddListener(OnHexInput);
+        if (hueSlider != null)
+            hueSlider.onValueChanged.AddListener(_ => OnHSVChanged());
+
+        if (satSlider != null)
+            satSlider.onValueChanged.AddListener(_ => OnHSVChanged());
+
+        if (valSlider != null)
+            valSlider.onValueChanged.AddListener(_ => OnHSVChanged());
+
+        if (hexInput != null)
+            hexInput.onEndEdit.AddListener(OnHexInput);
+
         SyncFromBrush();
     }
 
     void OnHSVChanged()
     {
-        float h = hueSlider ? hueSlider.value : 0f;
-        float s = satSlider ? satSlider.value : 1f;
-        float v = valSlider ? valSlider.value : 1f;
+        float h = hueSlider != null ? hueSlider.value : 0f;
+        float s = satSlider != null ? satSlider.value : 1f;
+        float v = valSlider != null ? valSlider.value : 1f;
         var color = Color.HSVToRGB(h, s, v);
         BrushSettings.Instance.color = color;
-        colorPreview?.color = color;
-        hexInput?.text = ColorUtility.ToHtmlStringRGB(color);
+
+        if (colorPreview != null)
+            colorPreview.color = color;
+
+        if (hexInput != null)
+            hexInput.text = ColorUtility.ToHtmlStringRGB(color);
     }
 
     void OnHexInput(string hex)
@@ -39,11 +51,17 @@ public class ColorWheelUI : MonoBehaviour
         if (ColorUtility.TryParseHtmlString("#" + hex, out var color))
         {
             BrushSettings.Instance.color = color;
-            colorPreview?.color = color;
+            if (colorPreview != null) colorPreview.color = color;
             Color.RGBToHSV(color, out float h, out float s, out float v);
-            hueSlider?.value = h;
-            satSlider?.value = s;
-            valSlider?.value = v;
+
+            if (hueSlider != null)
+                hueSlider.value = h;
+
+            if (satSlider != null)
+                satSlider.value = s;
+
+            if (valSlider != null)
+                valSlider.value = v;
         }
     }
 
@@ -51,9 +69,17 @@ public class ColorWheelUI : MonoBehaviour
     {
         var c = BrushSettings.Instance.color;
         Color.RGBToHSV(c, out float h, out float s, out float v);
-        hueSlider?.value = h;
-        satSlider?.value = s;
-        valSlider?.value = v;
-        colorPreview?.color = c;
+
+        if (hueSlider != null)
+            hueSlider.value = h;
+
+        if (satSlider != null)
+            satSlider.value = s;
+
+        if (valSlider != null)
+            valSlider.value = v;
+
+        if (colorPreview != null)
+            colorPreview.color = c;
     }
 }

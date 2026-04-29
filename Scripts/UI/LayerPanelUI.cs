@@ -6,7 +6,7 @@ public class LayerPanelUI : MonoBehaviour
 {
     [Header("References")]
     public Transform listParent;
-    public GameObject layerItemPrefab;  // Prefab: Toggle (visibility) + Label + Slider (opacity)
+    public GameObject layerItemPrefab;
 
     void Start()
     {
@@ -20,13 +20,17 @@ public class LayerPanelUI : MonoBehaviour
             Destroy(child.gameObject);
 
         var layers = LayerManager.Instance.Layers;
+
         for (int i = layers.Count - 1; i >= 0; i--)
         {
             int idx = i;
             var layer = layers[i];
             var item = Instantiate(layerItemPrefab, listParent);
             var label = item.GetComponentInChildren<TextMeshProUGUI>();
-            label?.text = layer.name;
+
+            if (label != null)
+                label.text = layer.name;
+
             var toggle = item.GetComponentInChildren<Toggle>();
 
             if (toggle != null)
@@ -40,8 +44,10 @@ public class LayerPanelUI : MonoBehaviour
                 });
             }
 
-            var btn = item.GetComponent<Button>();
-            btn?.onClick.AddListener(() => LayerManager.Instance.SetActive(idx));
+            
+            if (item.TryGetComponent<Button>(out var btn))
+                btn.onClick.AddListener(() => LayerManager.Instance.SetActive(idx));
+
             var sliders = item.GetComponentsInChildren<Slider>();
 
             foreach (var s in sliders)
